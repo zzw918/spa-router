@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>router</title>
+    <style>
+        html, body {
+            width: 100%;
+            height: 100%;
+            margin: 0;
+        }
+        div.router-wrap {
+            width: 100%;
+            height: 100%;
+            background: #efefef;
+        }
+        a {
+            display: inline-block;
+            padding: 10px;  
+            color: pink;
+            font-size: 25px;
+            font-weight: bold;
+            text-decoration: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="router-wrap">
+        <a href="/black" class="history-link">黑色</a><br>
+        <a href="/green" class="history-link">绿色</a><br>
+        <a href="/red" class="history-link">红色</a>
+    </div>
+
+    <script>
+        // 创建Router构造函数
+        function Router() {
+            this.currentRoute = '';
+            this.routes = {};
+            this.init();
+        }
+
+        // 注册路由函数
+        Router.prototype.route = function (path, callback) {
+
+            // 根据type类型，选择相应的history api。  
+            this.routes[path] = function (type) {
+                if (type == 1) {
+                    history.pushState({path: path}, '', path);
+                } else if (type == 2) {
+                    history.replaceState({path: path}, '', path);
+                }
+                callback();
+            }
+        }
+
+        // 更新页面
+        Router.prototype.refresh = function (path, type) {
+            this.routes[path](type);
+        }
+
+        // 初始化
+        Router.prototype.init = function () {
+
+            var self = this;
+
+            // 重新加载函数，这里使用的主机是http://localhost:8088/
+            window.addEventListener('load', function () {
+                self.currentRoute = location.href.slice(location.href.indexOf('/', 8));
+                console.log(self.currentRoute);
+                self.refresh(self.currentRoute);
+            });
+
+            // 当用户点击前进后退按钮时触发函数
+            window.addEventListener('popstate', function () {
+                console.log('history.state.path:', history.state.path);
+                self.currentRoute = history.state.path;
+                self.refresh(self.currentRoute, 2);
+            }, false);
+
+            // 对所有的link标签进行绑定事件
+            var historyLinks = document.querySelectorAll('.history-link');
+            for (var i = 0, len = historyLinks.length; i < len; i++) {
+                historyLinks[i].onclick = function(e) {
+                    // 阻止默认
+                    e.preventDefault();
+                    self.currentRoute = e.target.getAttribute('href');
+                    self.refresh(self.currentRoute, 1);
+                }
+            }
+        }
+    </script>
+
+    <script>
+        var wrap = document.querySelector('.router-wrap');
+
+        // 实例化Router
+        window.Router = new Router();
+
+
+        // 注册路由，实现相应功能
+            
+        Router.route('/', function () {
+            wrap.style.backgroundColor = '#efefef'
+        });
+
+        Router.route('/black', function () {
+            wrap.style.backgroundColor = 'black';
+        });
+
+        Router.route('/green', function () {
+            wrap.style.backgroundColor = 'green';
+        });
+
+        Router.route('/red', function () {
+            wrap.style.backgroundColor = 'red';
+        });
+    </script>
+</body>
+</html>

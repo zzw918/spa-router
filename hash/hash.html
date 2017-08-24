@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>router</title>
+    <style>
+        html, body {
+            width: 100%;
+            height: 100%;
+            margin: 0;
+        }
+        div.router-wrap {
+            width: 100%;
+            height: 100%;
+            background: #fefefe;
+        }
+        a {
+            padding: 10px;  
+            color: pink;
+            font-size: 25px;
+            font-weight: bold;
+            text-decoration: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="router-wrap">
+        <a href="#/black">黑色</a><br>
+        <a href="#/green">绿色</a><br>
+        <a href="#/red">红色</a>
+    </div>
+    <script>
+        // 创建Router构造函数
+        // currentHash为当前hash值，routes为路径对象
+        function Router() {
+            this.currentHash = '/';
+            this.routes = {};
+        }
+
+        // 注册路径，每个路径对应一个回调函数。 
+        Router.prototype.route = function (path, callback) {
+            this.routes[path] = callback || function () {
+                alert('未定义回调函数！');
+            }
+        }
+
+        // 更新页面函数
+        Router.prototype.refresh = function () {
+            this.currentHash = location.hash.slice(1) || '/';
+            this.routes[this.currentHash]();
+        }
+
+        // 初始化
+        Router.prototype.init = function () {
+            var self = this;
+            window.addEventListener('load', function () {
+                self.refresh();
+            }, false);  
+
+            window.addEventListener('hashchange', function () {
+                self.refresh();
+            });
+        }
+    </script>
+
+    <script>
+        var wrap = document.querySelector('.router-wrap');
+
+        window.Router = new Router();
+        Router.route('/', function () {
+            wrap.style.backgroundColor = '#fefefe';
+        });
+
+        Router.route('/black', function () {
+            wrap.style.backgroundColor = 'black';
+        });
+
+        Router.route('/green', function () {
+            wrap.style.backgroundColor = 'green';
+        });
+
+        Router.route('/red', function () {
+            wrap.style.backgroundColor = 'red';
+        });
+
+        Router.init();
+
+    </script>
+</body>
+</html>
